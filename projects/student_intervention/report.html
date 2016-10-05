@@ -11800,7 +11800,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># Import libraries</span>
@@ -11852,7 +11852,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># TODO: Calculate number of students</span>
@@ -11890,7 +11890,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Total number of students: 395
-Number of features: 31
+Number of features: 30
 Number of students who passed: 265
 Number of students who failed: 130
 Graduation rate of the class: 67.09%
@@ -12277,7 +12277,7 @@ Testing set has 95 samples.
 <span class="n">X_train_300</span> <span class="o">=</span> <span class="n">X_train</span>
 <span class="n">y_train_300</span> <span class="o">=</span> <span class="n">y_train</span>
 
-<span class="n">X_train_10000</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">X_train_10000</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="c1"># Note: Resampling data to produce 10,000 row data set purely for estimating computational cost.</span>
 <span class="n">y_train_10000</span> <span class="o">=</span> <span class="n">y_train</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">X_train_10000</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
 
 <span class="c1"># TODO: Execute the &#39;train_predict&#39; function for each classifier and each training set size</span>
@@ -12620,7 +12620,7 @@ F1 score for test set: 0.7910.
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>The predictive model looks at characteristics of the student, including age, gender, family educational and employment background, health, and recreational preferences, in order to make a prediction about that student's graduation status (pass_yes or pass_no).  The intention of the model is to provide teachers or counselors with greater predictive insights into which of their students are most likely to fail, with the hope that identifying high-risk students early will provide better targeting for interventional services.  When a new student is scored through the model, their background information is provided to the model and it will return a prediction of whether that student will pass or fail.  In order to combat over-fitting, the model is only trained on 300 of the 395 total observations.  The remaining 95 observations (the testing set) are used to validate how well the model performs on observations that it did not directly encouncer in training.  For classification problems, performance is usually measured by some combination of accuracy (the percentage of correct predictions), precision (the percentage of predicted positives that are correctly labelled), recall (the percentage of actual positives that are correctly labelled), or F1 (an average of recall and precision).</p>
-<p>The Support Vector Classifier learns to make its predictions by attempting to draw a simple linear surface that separates all of the positive and negative labels (pass_yes and pass_no). In a two dimensional space, that means simply drawing a line that correctly seperates all (or the most possible) of the labels.  Beyond a two-dimensional space, the SVC attempts to draw a hyperplane, a multi-dimensional linear surface, that correctly separates the labelled points.  The SVC chooses this surface by maximizing the margin between the decision boundary and the correctly labeled points closely bordering that boundary.  This process of drawing simple lines or surfaces to seperate points would in-and-of-itself not be a particularly flexible problem solving method; however, the SVC employs something called the kernel-trick in order to draw more complex decision boundaries.  In essence, the SVC applies some function to two or more training features in order to transform them into a more convenient and (usually) lower dimensional space.  For example, the Radial Basis Function (RBF) is a commonly used kernel that takes two inputs and returns a singular output based on their radial distance from the origin: RBF(x,y) -&gt; z. Almost any function can be used as a kernel, however specific characteristics, such as closed differentiability, can make certain functions better fits as kernels.</p>
+<p>The Support Vector Classifier learns to make its predictions by attempting to draw a simple linear surface that separates all of the positive and negative labels (pass_yes and pass_no). In a two dimensional space, that means simply drawing a line that correctly seperates all (or the most possible) of the labels.  Beyond a two-dimensional space, the SVC attempts to draw a plane that correctly separates the labelled points.  The SVC chooses this surface by maximizing the margin between the decision boundary and the correctly labeled points closely bordering that boundary.  This process of drawing simple lines or surfaces to seperate points would in-and-of-itself not be a particularly flexible problem solving method; however, the SVC employs something called the kernel-trick in order to draw more complex decision boundaries.  In essence, the SVC applies some function to two or more training features in order to transform them into a more convenient and (usually) lower dimensional space. Almost any function can be used as a kernel, however specific characteristics, such as closed differentiability, can make certain functions better fits as kernels.</p>
 
 </div>
 </div>
