@@ -34,6 +34,9 @@ class Environment(object):
     def __init__(self, num_dummies=3):
         self.num_dummies = num_dummies  # no. of dummy agents
         
+        # Initialize Tracking Metrics:
+        self.results = []
+
         # Initialize simulation variables
         self.done = False
         self.t = 0
@@ -122,9 +125,11 @@ class Environment(object):
             agent_deadline = self.agent_states[self.primary_agent]['deadline']
             if agent_deadline <= self.hard_time_limit:
                 self.done = True
+                self.results.append(0)
                 print "Environment.step(): Primary agent hit hard time limit ({})! Trial aborted.".format(self.hard_time_limit)
             elif self.enforce_deadline and agent_deadline <= 0:
                 self.done = True
+                self.results.append(0)
                 print "Environment.step(): Primary agent ran out of time! Trial aborted."
             self.agent_states[self.primary_agent]['deadline'] = agent_deadline - 1
 
@@ -210,7 +215,8 @@ class Environment(object):
                 if state['deadline'] >= 0:
                     reward += 10  # bonus
                 self.done = True
-                print "Environment.act(): Primary agent has reached destination!"  # [debug]
+                self.results.append(state['deadline'])
+                print "Environment.act(): Primary agent has reached destination with {:d} steps left".format(state['deadline'])  # [debug]
             self.status_text = "state: {}\naction: {}\nreward: {}".format(agent.get_state(), action, reward)
             #print "Environment.act() [POST]: location: {}, heading: {}, action: {}, reward: {}".format(location, heading, action, reward)  # [debug]
 
