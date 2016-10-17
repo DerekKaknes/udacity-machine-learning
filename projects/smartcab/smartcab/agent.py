@@ -110,13 +110,18 @@ class LearningAgent(Agent):
         # print "LearningAgent.update(): deadline = {}, state = {}, act = {}, reward = {}, new_q = {}".format(deadline, self.state, action, reward, new_q)  # [debug]
 
 
-def run():
+def run(parameter_tuning=False):
     """Run the agent for a finite number of trials."""
 
-    alphas = map(lambda x: x / 10., range(0,11, 2))
-    epsilons = map(lambda x: x / 10., range(0, 11, 2))
-    gammas = map(lambda x: x / 10., range(0, 11, 2))
     Params = namedtuple('Params', ['alpha', 'epsilon', 'gamma'])
+    if parameter_tuning:
+        alphas = map(lambda x: x / 10., range(0,11, 2))
+        epsilons = map(lambda x: x / 10., range(0, 11, 2))
+        gammas = map(lambda x: x / 10., range(0, 11, 2))
+    else:
+        alphas = [0.4]
+        epsilons = [0.0]
+        gammas = [0.6]
     results = {}
 
     for alpha in alphas:
@@ -135,7 +140,6 @@ def run():
                 sim.run(n_trials=100)  # run for a specified number of trials
                 res = sum(sim.env.results) / len(sim.env.results)
                 results[Params(alpha, epsilon, gamma)] = res
-                print "Mean steps remaining = {}".format(res)
                 # NOTE: To quit midway, press Esc or close pygame window, or hit Ctrl+C on the command-line
     sorted_keys = sorted(results, key=results.get, reverse=True)
     sorted_vals = [results[k] for k in sorted_keys]
@@ -148,4 +152,4 @@ if __name__ == '__main__':
     for pv in res[:10]:
         p = pv[0]
         v = pv[1]
-        print "Params: (alpha = {}, epsilon = {}, gamma = {}) gave value of {}".format(p.alpha, p.epsilon, p.gamma, v)
+        print "Params: (alpha = {}, epsilon = {}, gamma = {}) reached destination with average remaining deadline of {:.1f} steps".format(p.alpha, p.epsilon, p.gamma, v)
