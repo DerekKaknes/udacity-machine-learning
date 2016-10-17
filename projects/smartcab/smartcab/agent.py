@@ -1,3 +1,4 @@
+from __future__ import division
 import random
 from environment import Agent, Environment
 from planner import RoutePlanner
@@ -32,7 +33,7 @@ class LearningAgent(Agent):
         self.q[(state, action)] = reward
       else:
         self.q[(state, action)] = (1 - alpha) * oldv + alpha * value
-      self.t += 1.
+      # self.t += 1.
       return self.q[(state, action)]
 
     def learn(self, state1, action1, reward, state2):
@@ -59,10 +60,30 @@ class LearningAgent(Agent):
       top_keys = [self.q.keys()[i] for i,v in best_q_vals]
       return top_keys[:n]
 
+    def determine_state(self, waypoint, inputs):
+      if inputs['light'] == 'red':
+        if waypoint == 'right':
+          state = ('State', 'Right On Red')
+        else:
+          state = ('State', 'Stop on Red')
+      else:
+        if waypoint == 'left' and inputs['oncoming'] in ['forward', 'right']:
+          state = ('State', 'Yield Left Turn')
+        else:
+          state = ('State', waypoint)
+          # state = State(
+          #   waypoint = self.next_waypoint,
+          #   light = inputs['light'],
+          #   oncoming = inputs['oncoming'],
+          #   left = inputs['left'],
+          #   right = inputs['right']
+          #   )
+      return state
+
     def reset(self, destination=None):
         self.planner.route_to(destination)
         # TODO: Prepare for a new trip; reset any variables here, if required
-        self.t = 1.
+        self.t += 1.
 
     def update(self, t):
         # Gather inputs
@@ -71,13 +92,7 @@ class LearningAgent(Agent):
         deadline = self.env.get_deadline(self)
 
         # TODO: Update state
-        self.state = State(
-            waypoint = self.next_waypoint,
-            light = inputs['light'],
-            oncoming = inputs['oncoming'],
-            left = inputs['left'],
-            right = inputs['right']
-            )
+        self.state = self.determine_state(self.next_waypoint, inputs)
 
         # TODO: Select action according to your policy
         action = self.choose_action(self.state)
@@ -88,36 +103,49 @@ class LearningAgent(Agent):
         # TODO: Learn policy based on state, action, reward
         new_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
         new_inputs = self.env.sense(self)
-        new_state = State(
-            waypoint = new_waypoint,
-            light = new_inputs['light'],
-            oncoming = new_inputs['oncoming'],
-            left = new_inputs['left'],
-            right = new_inputs['right']
-            )
+        new_state = self.determine_state(new_waypoint, new_inputs)
 
         new_q = self.learn(self.state, action, reward, new_state)
 
-        # print "LearningAgent.update(): deadline = {}, waypt = {}, light = {}, act = {}, reward = {}, new_q = {}".format(deadline, self.next_waypoint, inputs['light'], action, reward, new_q)  # [debug]
+        # print "LearningAgent.update(): deadline = {}, state = {}, act = {}, reward = {}, new_q = {}".format(deadline, self.state, action, reward, new_q)  # [debug]
 
 
 def run():
     """Run the agent for a finite number of trials."""
 
-    # Set up environment and agent
-    e = Environment()  # create environment (also adds some dummy traffic)
-    a = e.create_agent(LearningAgent, alpha=1, epsilon=0.05, gamma=0.5)  # create agent
-    e.set_primary_agent(a, enforce_deadline=True)  # specify agent to track
-    # NOTE: You can set enforce_deadline=False while debugging to allow longer trials
+    alphas = map(lambda x: x / 10., range(0,11, 2))
+    epsilons = map(lambda x: x / 10., range(0, 11, 2))
+    gammas = map(lambda x: x / 10., range(0, 11, 2))
+    Params = namedtuple('Params', ['alpha', 'epsilon', 'gamma'])
+    results = {}
 
-    # Now simulate it
-    sim = Simulator(e, update_delay=0.0, display=False)  # create simulator (uses pygame when display=True, if available)
-    # NOTE: To speed up simulation, reduce update_delay and/or set display=False
+    for alpha in alphas:
+        for epsilon in epsilons:
+            for gamma in gammas:
+                # Set up environment and agent
+                e = Environment()  # create environment (also adds some dummy traffic)
+                a = e.create_agent(LearningAgent, alpha=alpha, epsilon=epsilon, gamma=gamma)  # create agent
+                e.set_primary_agent(a, enforce_deadline=True)  # specify agent to track
+                # NOTE: You can set enforce_deadline=False while debugging to allow longer trials
 
-    sim.run(n_trials=100)  # run for a specified number of trials
-    # NOTE: To quit midway, press Esc or close pygame window, or hit Ctrl+C on the command-line
-    return sim
+                # Now simulate it
+                sim = Simulator(e, update_delay=0.0, display=False)  # create simulator (uses pygame when display=True, if available)
+                # NOTE: To speed up simulation, reduce update_delay and/or set display=False
+
+                sim.run(n_trials=100)  # run for a specified number of trials
+                res = sum(sim.env.results) / len(sim.env.results)
+                results[Params(alpha, epsilon, gamma)] = res
+                print "Mean steps remaining = {}".format(res)
+                # NOTE: To quit midway, press Esc or close pygame window, or hit Ctrl+C on the command-line
+    sorted_keys = sorted(results, key=results.get, reverse=True)
+    sorted_vals = [results[k] for k in sorted_keys]
+    results = zip(sorted_keys, sorted_vals)
+    return results
 
 
 if __name__ == '__main__':
-    a = run()
+    res = run()
+    for pv in res[:10]:
+        p = pv[0]
+        v = pv[1]
+        print "Params: (alpha = {}, epsilon = {}, gamma = {}) gave value of {}".format(p.alpha, p.epsilon, p.gamma, v)
